@@ -1,212 +1,193 @@
-Data Persistence and API Design Task
+# Profile Intelligence Service
 
-A real-time RESTful application built with Node.js, Express, and MySQL. This service functions as an enrichment engine that takes a simple name and transforms it into a detailed demographic profile using multiple external intelligence APIs.
+A RESTful API built with Node.js, Express, and MySQL that enriches user-provided names with demographic estimates from Genderize, Agify, and Nationalize.
 
-Context
-The Profile Intelligence Service is designed for systems requiring automated user profiling and data enrichment.
+The service aggregates external API responses, classifies estimated age groups, and persists validated profiles for retrieval and filtering.
 
-The Input: A simple user-provided name.
+## Features
 
-The Engine: Simultaneously queries Genderize, Agify, and Nationalize APIs to aggregate demographic data.
+- **Multi-API enrichment:** Fetches gender, age, and country probability estimates from three external APIs concurrently.
+- **Age classification:** Categorizes estimated ages into child (0–12), teenager (13–19), adult (20–59), and senior (60+).
+- **Country selection:** Selects the country with the highest reported probability.
+- **Data persistence:** Stores enriched profiles in MySQL.
+- **Duplicate handling:** Returns existing profiles for previously processed names, avoiding unnecessary API calls.
+- **UUID v7:** Uses time-sortable UUIDs for profile identifiers.
+- **Filtering:** Supports case-insensitive filtering by gender, country code, and age group.
+- **Validation and error handling:** Rejects invalid input and prevents incomplete upstream data from being stored.
+- **Standardized responses:** Provides consistent JSON responses and HTTP status codes.
+- **Connection pooling:** Uses `mysql2/promise` for database connections.
 
-The Result: A structured, persistent profile featuring gender probability, age classification, and country of origin.
+## Tech Stack
 
-Below is a professional, high-quality README.md tailored specifically for your Profile Intelligence Service, following the exact structure and style you requested.
+- Node.js (ES modules)
+- Express.js
+- MySQL 8.0+
+- MySQL2
+- Axios
+- UUID
+- dotenv
+- CORS
 
-Profile Intelligence Service
-A real-time, high-performance RESTful application built with Node.js, Express, and MySQL. This service functions as an enrichment engine that takes a simple name and transforms it into a detailed demographic profile using multiple external intelligence APIs.
+## Architecture
 
-Context
-The Profile Intelligence Service is designed for systems requiring automated user profiling and data enrichment.
+The application follows a modular MVC-style architecture with separated business logic and data access.
 
-The Input: A simple user-provided name.
+```text
+src/
+├── app.js
+├── controllers/
+├── middleware/
+├── models/
+├── routes/
+├── services/
+├── utils
+└── utils/
+server.js
+schema.sql
+```
 
-The Engine: Simultaneously queries Genderize, Agify, and Nationalize APIs to aggregate demographic data.
+- `server.js` — Application entry point.
+- `src/app.js` — Express configuration and middleware.
+- `src/controllers/` — HTTP request and response handling.
+- `src/services/` — Business logic and external API integrations.
+- `src/models/` — Database queries and persistence.
+- `src/utils/` — Shared utilities and response formatting.
+- `schema.sql` — Database schema.
 
-The Result: A structured, persistent profile featuring gender probability, age classification, and country of origin.
+## Getting Started
 
-Features
--- Data Enrichment & Logic
-Multi-API Aggregation: Integrated with three third-party services to fetch real-time intelligence.
+### Prerequisites
 
-Age Classification: Automatic categorization into life stages: child (0-12), teenager (13-19), adult (20-59), or senior (60+).
+- Node.js
+- MySQL 8.0+
+- npm
 
-National Identity: Intelligent selection of the highest-probability country code from geographic data.
+### Installation
 
--- Persistence & Reliability
-Idempotency Handling: Intelligent duplicate detection. If a name has already been processed, the system returns the existing record instead of creating a new one or re-calling external APIs.
+Clone the repository:
 
-UUID v7 Integration: Uses time-sortable Version 7 UUIDs for primary keys, ensuring better database indexing performance.
-
-Data Integrity: Upstream validation ensures that if an external API returns null or insufficient data, the system triggers a 502 Bad Gateway error to prevent corrupted records.
-
--- System Design
-Case-Insensitive Filtering: Search through profiles by gender, country_id, or age_group without worrying about casing.
-
-Standardized Responses: Clean, consistent JSON formatting for all success and error states.
-
-CORS Enabled: Configured with Access-Control-Allow-Origin: * for seamless frontend or grading script integration.
-
-Tech Stack
-Runtime: Node.js (ES6 Modules)
-
-Framework: Express.js
-
-Database: MySQL 8.0+
-
-Drivers: mysql2/promise (Connection Pooling)
-
-HTTP Client: Axios
-
-Utilities: uuid, dotenv, cors
-
-Project Architecture (MVC-S)
-The project follows a modular architecture to separate concerns between routing, business logic, and data persistence:
-
-- Entry Point: server.js (Server initialization)
-
-- Application Setup: src/app.js (Express configuration & Middleware)
-
-- Controllers: src/controllers/ (Request/Response handling)
-
-- Services: src/services/ (Business logic, API aggregation & external wrappers)
-
-- Models: src/models/ (SQL query abstraction)
-
-- Utilities: src/utils/ (Response formatting & UUID generation)
-
-Installation & Setup
-1. Clone the repository
+```bash
 git clone https://github.com/Chidiogoezeh/Task-1_Data-Persistence---API-Design.git
-
-2. Install dependencies
-npm install
-
-Below is a professional, high-quality README.md tailored specifically for your Profile Intelligence Service, following the exact structure and style you requested.
-
-Profile Intelligence Service
-A real-time, high-performance RESTful application built with Node.js, Express, and MySQL. This service functions as an enrichment engine that takes a simple name and transforms it into a detailed demographic profile using multiple external intelligence APIs.
-
-Context
-The Profile Intelligence Service is designed for systems requiring automated user profiling and data enrichment.
-
-The Input: A simple user-provided name.
-
-The Engine: Simultaneously queries Genderize, Agify, and Nationalize APIs to aggregate demographic data.
-
-The Result: A structured, persistent profile featuring gender probability, age classification, and country of origin.
-
-Features
--- Data Enrichment & Logic
-Multi-API Aggregation: Integrated with three third-party services to fetch real-time intelligence.
-
-Age Classification: Automatic categorization into life stages: child (0-12), teenager (13-19), adult (20-59), or senior (60+).
-
-National Identity: Intelligent selection of the highest-probability country code from geographic data.
-
--- Persistence & Reliability
-Idempotency Handling: Intelligent duplicate detection. If a name has already been processed, the system returns the existing record instead of creating a new one or re-calling external APIs.
-
-UUID v7 Integration: Uses time-sortable Version 7 UUIDs for primary keys, ensuring better database indexing performance.
-
-Data Integrity: Upstream validation ensures that if an external API returns null or insufficient data, the system triggers a 502 Bad Gateway error to prevent corrupted records.
-
--- System Design
-Case-Insensitive Filtering: Search through profiles by gender, country_id, or age_group without worrying about casing.
-
-Standardized Responses: Clean, consistent JSON formatting for all success and error states.
-
-CORS Enabled: Configured with Access-Control-Allow-Origin: * for seamless frontend or grading script integration.
-
-Tech Stack
-Runtime: Node.js (ES6 Modules)
-
-Framework: Express.js
-
-Database: MySQL 8.0+
-
-Drivers: mysql2/promise (Connection Pooling)
-
-HTTP Client: Axios
-
-Utilities: uuid, dotenv, cors
-
-Project Architecture (MVC-S)
-The project follows a modular architecture to separate concerns between routing, business logic, and data persistence:
-
-Entry Point: server.js (Server initialization)
-
-Application Setup: src/app.js (Express configuration & Middleware)
-
-Controllers: src/controllers/ (Request/Response handling)
-
-Services: src/services/ (Business logic, API aggregation & external wrappers)
-
-Models: src/models/ (SQL query abstraction)
-
-Utilities: src/utils/ (Response formatting & UUID generation)
-
-Installation & Setup
-1. Clone the repository
-Bash
-git clone https://github.com/Chidiogoezeh/Third-semester-month-1.git
 cd profile-intelligence-service
-2. Install dependencies
-Bash
-npm install
-3. Database Setup
-Create a MySQL database and run the provided schema.sql script to generate the profiles table.
+```
 
-4. Environment Variables
-Create a .env file in the root directory:
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Database Setup
+
+Create a MySQL database and execute the provided `schema.sql` file to create the required tables.
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
 PORT=3000
 DB_HOST=localhost
 DB_USER=your_user
 DB_PASSWORD=your_password
 DB_NAME=profile_db
+```
 
-5. Run the application
-- Development mode
+Replace the example database credentials with your local configuration.
+
+### Run the Application
+
+Development:
+
+```bash
 npm run dev
+```
 
-- Production mode
+Production:
+
+```bash
 node server.js
+```
 
-The server will run on http://localhost:3000.
+The API will be available at `http://localhost:3000`.
 
-API Documentation
-1. Create Profile
-Endpoint: POST /api/profiles
+## API Endpoints
 
-Payload: { "name": "ella" }
+| Method | Endpoint            | Description                             |
+| ------ | ------------------- | --------------------------------------- |
+| POST   | `/api/profiles`     | Create or retrieve an existing profile  |
+| GET    | `/api/profiles`     | Retrieve profiles with optional filters |
+| GET    | `/api/profiles/:id` | Retrieve a profile by UUID              |
+| DELETE | `/api/profiles/:id` | Delete a profile                        |
 
-Logic: Calls external APIs, classifies age, and stores data. Returns existing data if the name already exists.
+### 1. Create a Profile
 
-2. Get All Profiles
-Endpoint: GET /api/profiles
+`POST /api/profiles`
 
-Query Params (Optional): gender, country_id, age_group
+Request body:
 
-Example: /api/profiles?gender=male&country_id=NG
+```json
+{
+  "name": "Ella"
+}
+```
 
-3. Get Single Profile
-Endpoint: GET /api/profiles/:id
+The service retrieves demographic estimates, validates the aggregated data, classifies the estimated age, and stores the resulting profile. If a matching profile already exists, it returns the existing record.
 
-Response: Full demographic breakdown of the specific UUID.
+### 2. Get All Profiles
 
-4. Delete Profile
-Endpoint: DELETE /api/profiles/:id
+`GET /api/profiles`
 
-Response: 204 No Content.
+Optional query parameters:
 
-Error Handling
-The service uses standard HTTP status codes and a consistent error object:
-{ "status": "error", "message": "<detailed message>" }
+- `gender` — Filter by estimated gender.
+- `country_id` — Filter by country code.
+- `age_group` — Filter by age classification.
 
-400: Missing or empty name.
+Example:
 
-404: Profile not found.
+```http
+GET /api/profiles?gender=male&country_id=NG
+```
 
-422: Invalid data types.
+### 3. Get a Single Profile
 
-502: Upstream API failure (Genderize/Agify/Nationalize returned null or 0 results).
+`GET /api/profiles/:id`
+
+Retrieves a profile using its UUID.
+
+### 4. Delete a Profile
+
+`DELETE /api/profiles/:id`
+
+Deletes the specified profile and returns `204 No Content` on success.
+
+## Error Handling
+
+Errors use a consistent JSON structure:
+
+```json
+{
+  "status": "error",
+  "message": "Descriptive error message"
+}
+```
+
+| Status | Meaning                                            |
+| ------ | -------------------------------------------------- |
+| `400`  | Missing or empty name                              |
+| `404`  | Profile not found                                  |
+| `422`  | Invalid input data                                 |
+| `502`  | External API failure or insufficient upstream data |
+
+## External APIs
+
+- [Genderize](https://genderize.io/) — Estimates gender from a name.
+- [Agify](https://agify.io/) — Estimates age from a name.
+- [Nationalize](https://nationalize.io/) — Estimates likely nationality from a name.
+
+These services provide statistical estimates, not verified demographic facts.
+
+## License
+
+Add your chosen license here if the project is intended for public reuse.
