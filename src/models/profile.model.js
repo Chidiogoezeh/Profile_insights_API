@@ -14,44 +14,43 @@ export const findById = async (id) => {
   return rows[0];
 };
 
-export const save = async (p) => {
-  const sql = `INSERT INTO profiles (id, name, gender, gender_probability, sample_size, age, age_group, country_id, country_probability, created_at) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
-  
-  const params = [
-    p.id,
-    p.name,
-    p.gender,
-    p.gender_probability,
-    p.sample_size,
-    p.age,
-    p.age_group,
-    p.country_id,
-    p.country_probability
-    // Removed p.created_at from here
-  ];
-  return await pool.execute(sql, params);
-};
+export const save = (p) =>
+  pool.execute(
+    `INSERT INTO profiles (
+      id, name, gender, gender_probability, sample_size, age,
+      age_group, country_id, country_probability, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+    [
+      p.id,
+      p.name,
+      p.gender,
+      p.gender_probability,
+      p.sample_size,
+      p.age,
+      p.age_group,
+      p.country_id,
+      p.country_probability,
+    ],
+  );
 
 export const findAll = async (filters) => {
   let sql = "SELECT id, name, gender, age, age_group, country_id FROM profiles";
-  const params = [];
   const clauses = [];
+  const params = [];
 
-  if (filters.gender) {
-    clauses.push("LOWER(gender) = LOWER(?)");
-    params.push(filters.gender);
-  }
-  if (filters.country_id) {
-    clauses.push("country_id = ?");
-    params.push(filters.country_id);
-  }
-  if (filters.age_group) {
-    clauses.push("age_group = ?");
-    params.push(filters.age_group);
+  for (const [key, column] of [
+    ["gender", "LOWER(gender) = LOWER(?)"],
+    ["country_id", "country_id = ?"],
+    ["age_group", "age_group = ?"],
+  ]) {
+    if (filters[key]) {
+      clauses.push(column);
+      params.push(filters[key]);
+    }
   }
 
-  if (clauses.length > 0) sql += " WHERE " + clauses.join(" AND ");
+  if (clauses.length) sql += ` WHERE ${clauses.join(" AND ")}`;
+
   const [rows] = await pool.execute(sql, params);
   return rows;
 };
